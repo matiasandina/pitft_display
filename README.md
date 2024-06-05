@@ -40,7 +40,7 @@ After=multi-user.target
 [Service]
 Type=idle
 ExecStart=/home/pi/miniforge3/envs/pitft_env/bin/python /home/pi/pitft_display/monitor_stats.py
-Restart=always
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
