@@ -39,7 +39,7 @@ def get_memory_usage():
 def get_disk_usage():
     disk = safe_retrieve(psutil.disk_usage, '/')
     if disk != "N/A":
-        return f"Disk: {disk.used/1024**3:.1f}/{disk.total/1024**3:.1f} GB  {disk.percent}%"
+        return f"Disk: {disk.used/1024**3:.1f}/{disk.total/1024**3:.1f} GB"
     return "N/A"
 
 def get_cpu_temperature():
