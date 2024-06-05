@@ -21,8 +21,8 @@ def safe_retrieve(callable_func, *args, **kwargs):
 
 def get_ip():
     cmd = "hostname -I | cut -d' ' -f1"
-    ip = safe_retrieve(subprocess.check_output, cmd, shell=True)
-    return f"IP: {ip.decode("utf-8")}" if ip != "N/A" else "N/A"
+    ip = safe_retrieve(subprocess.check_output, cmd, shell=True).decode("utf-8")
+    return f"IP: {ip}" if ip != "N/A" else "N/A"
 
 def get_cpu_load():
     cpu_load = safe_retrieve(psutil.cpu_percent)
