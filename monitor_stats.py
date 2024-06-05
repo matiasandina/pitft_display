@@ -20,6 +20,15 @@ def safe_retrieve(callable_func, *args, **kwargs):
         print(f"Error retrieving {callable_func.__name__}: {str(e)}")  # Print error to command line
         return "N/A"
 
+def get_mac(interface = 'wlan0'):
+    # This is good for Raspberry PIs, not good for other OS !
+    # possible interfaces ['wlan0', 'eth0']
+    try:
+        mac = open('/sys/class/net/'+interface+'/address').readline()
+    except:
+        mac = "00:00:00:00:00:00"
+    return f"MAC: {mac[0:17]}"
+
 def get_ip():
     cmd = "hostname -I | cut -d' ' -f1"
     ip = safe_retrieve(subprocess.check_output, cmd, shell=True).decode("utf-8")
@@ -52,6 +61,7 @@ def get_cpu_temperature():
 
 def get_system_metrics():
     return {
+        "MAC": get_mac(),
         "IP": get_ip(),
         "CPU": get_cpu_load(),
         "Mem": get_memory_usage(),
@@ -129,6 +139,7 @@ font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
 
 # Define the style dictionary for text color
 style_key = {
+    "MAC": {"fill": "#FFFFFF"},
     "IP": {"fill": "#FFFFFF"},
     "CPU": {"fill":"#FFFF00"},
     "Mem": {"fill": "#00FF00"},
