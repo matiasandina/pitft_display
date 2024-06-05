@@ -22,7 +22,7 @@ def safe_retrieve(callable_func, *args, **kwargs):
 def get_ip():
     cmd = "hostname -I | cut -d' ' -f1"
     ip = safe_retrieve(subprocess.check_output, cmd, shell=True)
-    return f"IP: {ip.strip()}" if ip != "N/A" else "N/A"
+    return f"IP: {ip.decode("utf-8")}" if ip != "N/A" else "N/A"
 
 def get_cpu_load():
     cpu_load = safe_retrieve(psutil.cpu_percent)
@@ -31,7 +31,9 @@ def get_cpu_load():
 def get_memory_usage():
     memory = safe_retrieve(psutil.virtual_memory)
     if memory != "N/A":
-        return f"Mem: {memory.used}/{memory.total} MB  {memory.percent:.2f}%"
+        memory_used = memory.used / 1024
+        memory_total = memory.total / 1024
+        return f"Mem: {memory_used:.0f}/{memory.total:.0f}Gb {memory.percent:.1f}%"
     return "N/A"
 
 def get_disk_usage():
@@ -120,14 +122,24 @@ backlight = digitalio.DigitalInOut(board.D22)
 backlight.switch_to_output()
 backlight.value = True
 
+# Define the style dictionary for text color
+style_key = {
+    "IP": {"fill": "#FFFFFF"},
+    "CPU": {"fill":"#FFFF00"},
+    "Mem": {"fill": "#00FF00"},
+    "Disk": {"fill": "#0000FF"},
+    "Temp": {"fill": "#FF00FF"}
+}
+
 while True:
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Clear the image.
     metrics = get_system_metrics()
     y = top
-    y_white_space = 1  # px
+    y_white_space = 2  # px
 
     for key, value in metrics.items():
-        draw.text((x, y), value, font=font, fill="#FFFFFF")
+        fill_color = style_key.get(key).get("fill")  # Get the fill color from the style dictionary
+        draw.text((x, y), value, font=font, fill=fill_color)
         y += get_string_coords(font, value)[1] + y_white_space
 
     disp.image(image, rotation)
