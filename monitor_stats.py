@@ -132,19 +132,14 @@ bottom = height - padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-# Alternatively load a TTF font.  Make sure the .ttf font file is in the
-# same directory as the python script!
-# Some other nice fonts to try: http://www.dafont.com/bitmap.php
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-
 # Define the style dictionary for text color
 style_key = {
-    "MAC": {"fill": "#FFFFFF"},
-    "IP": {"fill": "#FFFFFF"},
-    "CPU": {"fill":"#FFFF00"},
-    "Mem": {"fill": "#00FF00"},
-    "Disk": {"fill": "#0000FF"},
-    "Temp": {"fill": "#FF00FF"}
+    "MAC": {"fill": "#FFFFFF", "font_size": 18},
+    "IP": {"fill": "#FFFFFF", "font_size": 24},
+    "CPU": {"fill": "#FFFF00", "font_size": 24},
+    "Mem": {"fill": "#00FF00", "font_size": 24},
+    "Disk": {"fill": "#0000FF", "font_size": 24},
+    "Temp": {"fill": "#FF00FF", "font_size": 24}
 }
 
 while True:
@@ -154,10 +149,18 @@ while True:
     y_white_space = 2  # px
 
     for key, value in metrics.items():
-        fill_color = style_key.get(key).get("fill")  # Get the fill color from the style dictionary
+        style = style_key.get(key)
+        fill_color = style["fill"]
+        font_size = style["font_size"]
+        # Alternatively load a TTF font.  Make sure the .ttf font file is in the
+        # same directory as the python script!
+        # Some other nice fonts to try: http://www.dafont.com/bitmap.php
+        # we reload the font so that we can pass different font_size if needed
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
+        
         draw.text((x, y), value, font=font, fill=fill_color)
-        y += get_string_coords(font, value)[1] + y_white_space
+        y += font.getsize(value)[1] + y_white_space
 
     disp.image(image, rotation)
-    time.sleep(10)
+    time.sleep(1)
 
