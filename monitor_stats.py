@@ -86,6 +86,9 @@ reset_pin = None
 BAUDRATE = 64000000
 
 try:
+    print("Initializing display...")
+    # let's wait on boot so that we don't try to init too fast
+    time.sleep(10)
     # Setup SPI bus using hardware SPI:
     spi = board.SPI()
 
