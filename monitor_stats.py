@@ -159,7 +159,7 @@ while True:
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
         
         draw.text((x, y), value, font=font, fill=fill_color)
-        y += font.getsize(value)[1] + y_white_space
+        y += get_string_coords(font,value)[1] + y_white_space
 
     disp.image(image, rotation)
     time.sleep(1)
