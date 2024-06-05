@@ -34,7 +34,7 @@ def get_memory_usage():
     if memory != "N/A":
         memory_used = memory.used / (1024**3)
         memory_total = memory.total / (1024**3)
-        return f"Mem: {memory_used:.0f}/{memory.total:.0f} Gb"
+        return f"Mem: {memory_used:.0f}/{memory_total:.0f} Gb"
     return "N/A"
 
 def get_disk_usage():
