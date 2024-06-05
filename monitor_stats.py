@@ -10,6 +10,7 @@ import board
 from PIL import Image, ImageDraw, ImageFont
 from adafruit_rgb_display import st7789
 import psutil
+import sys
 
 def safe_retrieve(callable_func, *args, **kwargs):
     try:
@@ -31,9 +32,9 @@ def get_cpu_load():
 def get_memory_usage():
     memory = safe_retrieve(psutil.virtual_memory)
     if memory != "N/A":
-        memory_used = memory.used / 1024
-        memory_total = memory.total / 1024
-        return f"Mem: {memory_used:.0f}/{memory.total:.0f}Gb {memory.percent:.1f}%"
+        memory_used = memory.used / (1024**3)
+        memory_total = memory.total / (1024**3)
+        return f"Mem: {memory_used:.0f}/{memory.total:.0f} Gb"
     return "N/A"
 
 def get_disk_usage():
@@ -74,21 +75,31 @@ reset_pin = None
 # Config for display baudrate (default max is 24mhz):
 BAUDRATE = 64000000
 
-# Setup SPI bus using hardware SPI:
-spi = board.SPI()
+try:
+    # Setup SPI bus using hardware SPI:
+    spi = board.SPI()
 
-# Create the ST7789 display:
-disp = st7789.ST7789(
-    spi,
-    cs=cs_pin,
-    dc=dc_pin,
-    rst=reset_pin,
-    baudrate=BAUDRATE,
-    width=135,
-    height=240,
-    x_offset=53,
-    y_offset=40,
-)
+    # Create the ST7789 display:
+    disp = st7789.ST7789(
+        spi,
+        cs=cs_pin,
+        dc=dc_pin,
+        rst=reset_pin,
+        baudrate=BAUDRATE,
+        width=135,
+        height=240,
+        x_offset=53,
+        y_offset=40,
+    )
+    print("ST7789 Display Initialized")
+    # Turn on the backlight
+    backlight = digitalio.DigitalInOut(board.D22)
+    backlight.switch_to_output()
+    backlight.value = True
+
+except Exception as e:
+    print(f"Failed to initialize hardware or SPI: {str(e)}")
+    sys.exit(1)  # Exit with error status
 
 # Create blank image for drawing.
 # Make sure to create image with mode 'RGB' for full color.
@@ -111,16 +122,10 @@ bottom = height - padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-
 # Alternatively load a TTF font.  Make sure the .ttf font file is in the
 # same directory as the python script!
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
 font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-
-# Turn on the backlight
-backlight = digitalio.DigitalInOut(board.D22)
-backlight.switch_to_output()
-backlight.value = True
 
 # Define the style dictionary for text color
 style_key = {
