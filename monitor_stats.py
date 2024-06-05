@@ -128,7 +128,7 @@ while True:
 
     for key, value in metrics.items():
         draw.text((x, y), value, font=font, fill="#FFFFFF")
-        y += get_string_coords(value)[1] + y_white_space
+        y += get_string_coords(font, value)[1] + y_white_space
 
     disp.image(image, rotation)
     time.sleep(1)
