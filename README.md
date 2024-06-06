@@ -25,7 +25,7 @@ pip install -r requirements.txt
 If you want scripts in this repository to run in the background, follow the instructions below.
 
 > [!IMPORTANT]  
-> Run `which python` in order to get the proper execution patyh
+> Run `which python` in order to get the proper execution path
 
 > [!TIP]
 > The steps below are detailed for the stat monitor using a python instance under `/home/pi/miniforge3/envs/pitft_env/bin/python` and a script located at `/home/pi/pitft_display/monitor_stats.py`, modify for your use if changing the script to run.
