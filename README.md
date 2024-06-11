@@ -81,3 +81,53 @@ sudo systemctl status pitft_monitor_stats
 sudo journalctl -u pitft_monitor_stats
 
 ```
+
+If things go wrong, this service can be somewhat hungry in terms of disk usage. You should check
+
+```
+journalctl --disk-usage
+```
+
+It is recommended that you 
+
+```
+journalctl --vacuum-size=50M # or other size
+journalctl --vacuum-size=1d # or any other period
+```
+
+You can also choose to keep the sizes of logs small *permanently*. It's recommended that you use as script to do this (especially if you are running multiple Rpi). Assuming you have ssh access to the with `username` and `password`, and you can read `ip` (`df['ip']`) addresses from each of the raspberry pis in the network (df['computer_name']). This script assumes a pattern of `'raspberry'` and converts all to lower case, adjust as necessary.
+
+```
+def configure_journalctl(df, username, password):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    raspberries = df[df['computer_name'].str.lower().str.contains("raspberry", na=False)]
+    print(f"found these raspberries ({len(raspberries.index)})")
+    print(raspberries)
+    
+    for index, row in raspberries.iterrows():
+        ip = row['ip']  # Assuming IP is stored in the YAML file
+        try:
+            print(f"Trying IP {ip}")
+            ssh.connect(ip, username=username, password=password, timeout=10)
+            # Get current disk usage of journalctl
+            stdin, stdout, stderr = ssh.exec_command("journalctl --disk-usage")
+            current_usage = stdout.read().decode().strip()
+            print(f"Current journalctl disk usage on {row['computer_name']} ({ip}): {current_usage}")
+            # Execute configuration commands
+            commands = [
+              "sudo sed -i '/SystemMaxUse=/c\\SystemMaxUse=50M' /etc/systemd/journald.conf",
+              "sudo systemctl restart systemd-journald",
+              "sudo journalctl --rotate",
+              "sudo journalctl --vacuum-size=50M",
+              "journalctl --disk-usage"  # Check disk usage again after changes
+                    ]
+            
+            for command in commands:
+                stdin, stdout, stderr = ssh.exec_command(command)
+                print(f"Executed on {row['computer_name']} ({ip}): {command}")
+                print(stdout.read().decode() + stderr.read().decode())
+            ssh.close()
+        except Exception as e:
+            print(f"Failed to connect or execute on {row['computer_name']} ({ip}): {e}")
+```
